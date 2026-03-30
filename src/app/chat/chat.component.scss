@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
-// ── Variables ──────────────────────────────────────────────────────────────
+// variables
 $green-dark:   #1b5e20;
 $green-mid:    #2e7d32;
 $green-bright: #4caf50;
@@ -9,12 +9,11 @@ $green-pale:   #f1f8f1;
 $white:        #ffffff;
 $border:       #dde8dd;
 $text-dark:    #1a2e1a;
-$text-mid:     #3a4f3a;
 $text-light:   #6b7c6b;
 $user-bubble:  #c8e6c9;
 $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
 
-// ── Container ──────────────────────────────────────────────────────────────
+// container
 .chat-container {
   width: 420px;
   margin: 24px auto;
@@ -29,7 +28,7 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
   background: $white;
 }
 
-// ── Header ─────────────────────────────────────────────────────────────────
+// header
 .chat-header {
   background: linear-gradient(135deg, $green-mid 0%, $green-dark 100%);
   color: $white;
@@ -37,10 +36,7 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
   text-align: center;
   flex-shrink: 0;
 
-  .header-icon {
-    font-size: 22px;
-    margin-bottom: 2px;
-  }
+  .header-icon { font-size: 22px; margin-bottom: 2px; }
 
   h2 {
     margin: 0;
@@ -57,7 +53,7 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
   }
 }
 
-// ── Chat box ───────────────────────────────────────────────────────────────
+// chat box
 .chat-box {
   flex: 1;
   overflow-y: auto;
@@ -67,7 +63,6 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
   flex-direction: column;
   gap: 2px;
 
-  // Custom scrollbar
   &::-webkit-scrollbar        { width: 5px; }
   &::-webkit-scrollbar-track  { background: transparent; }
   &::-webkit-scrollbar-thumb  { background: #b2dfb2; border-radius: 4px; }
@@ -80,7 +75,7 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
   margin-bottom: 6px;
 }
 
-// ── User bubble ────────────────────────────────────────────────────────────
+// user bubble
 .user-msg-wrapper {
   display: flex;
   justify-content: flex-end;
@@ -97,7 +92,7 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
   word-break: break-word;
 }
 
-// ── Bot bubble ─────────────────────────────────────────────────────────────
+// bot bubble
 .bot-msg-wrapper {
   display: flex;
   align-items: flex-start;
@@ -123,31 +118,105 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
 .bot-msg {
   background: $white;
   color: $text-dark;
-  padding: 11px 14px;
+  padding: 12px 14px 10px;
   border-radius: 4px 18px 18px 18px;
-  max-width: 78%;
+  max-width: 80%;
   font-size: 13.5px;
-  line-height: 1.6;
+  line-height: 1.5;
   word-break: break-word;
   border: 1px solid $border;
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
 
-  // KEY FIX: renders \n from Java as visual line breaks
-  white-space: pre-wrap;
+// ── innerHTML content styles — must use ::ng-deep so Angular doesn't scope them away ──
 
-  // Bold first line (title) styling
-  strong {
-    display: block;
+::ng-deep .bot-msg {
+
+  // title
+  .msg-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     color: $green-dark;
-    margin-bottom: 5px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid $green-light;
+    padding-bottom: 7px;
+    margin-bottom: 6px;
+    border-bottom: 1.5px solid $green-light;
+    line-height: 1.3;
+  }
+
+  // spacer
+  .msg-spacer {
+    height: 6px;
+  }
+
+  // section label
+  .msg-section {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: $green-mid;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 8px 0 4px;
+    opacity: 0.85;
+  }
+
+  // bullet — Jio style: left-padding + small CSS dot, no inline icon
+  .msg-bullet {
+    font-size: 13px;
+    line-height: 1.55;
+    color: $text-dark;
+    padding: 2px 0 2px 14px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 9px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: $green-bright;
+    }
+  }
+
+  // key-value row
+  .msg-kv {
+    display: flex;
+    align-items: baseline;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 1px 0;
+
+    .kv-key {
+      color: $text-light;
+      font-weight: 500;
+      min-width: 76px;
+      flex-shrink: 0;
+      font-size: 12.5px;
+    }
+
+    .kv-sep {
+      color: $border;
+      margin: 0 6px;
+    }
+
+    .kv-val {
+      color: $text-dark;
+      font-weight: 500;
+      word-break: break-all;
+    }
+  }
+
+  // plain text
+  .msg-plain {
+    font-size: 13px;
+    color: $text-dark;
+    line-height: 1.55;
+    padding: 1px 0;
   }
 }
 
-// ── Typing indicator ───────────────────────────────────────────────────────
+// typing indicator
 .typing-indicator {
   display: flex;
   align-items: center;
@@ -173,50 +242,36 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
   30%           { transform: translateY(-6px); opacity: 1; }
 }
 
-// ── Option buttons ─────────────────────────────────────────────────────────
+// option buttons — Jio style: grouped card with dividers
 .options-box {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin: 6px 0 4px 38px; // aligned with bot bubble (avatar width + gap)
+  margin: 6px 0 4px 38px;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .option-btn {
+  display: block;
+  width: 100%;
   background: $white;
-  border: 1px solid $green-bright;
+  border: none;
+  border-bottom: 1px solid $border;
   color: $green-mid;
-  padding: 9px 14px;
-  border-radius: 10px;
-  cursor: pointer;
+  padding: 11px 16px;
   text-align: left;
   font-size: 13px;
   font-family: 'DM Sans', sans-serif;
   font-weight: 500;
-  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  cursor: pointer;
+  transition: background 0.12s;
 
-  .opt-arrow {
-    font-size: 16px;
-    color: $green-bright;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  &:hover {
-    background: $green-light;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.18);
-  }
-
-  &:active {
-    transform: translateX(2px);
-    background: darken($green-light, 4%);
-  }
+  &:last-child { border-bottom: none; }
+  &:hover      { background: $green-light; }
+  &:active     { background: darken($green-light, 4%); }
 }
 
-// ── Input area ─────────────────────────────────────────────────────────────
+// input area
 .input-box {
   display: flex;
   padding: 10px 12px;
@@ -238,11 +293,7 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
     transition: border-color 0.2s;
 
     &::placeholder { color: $text-light; }
-
-    &:focus {
-      border-color: $green-bright;
-      background: $white;
-    }
+    &:focus { border-color: $green-bright; background: $white; }
   }
 
   button {
@@ -256,21 +307,13 @@ $shadow:       0 4px 24px rgba(0, 0, 0, 0.10);
     font-weight: 600;
     cursor: pointer;
     transition: opacity 0.2s, transform 0.1s;
-    margin-left: 0;
 
-    &:hover:not(:disabled) {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
+    &:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    &:disabled             { opacity: 0.45; cursor: not-allowed; }
   }
 }
 
-// ── Error text ─────────────────────────────────────────────────────────────
+// error text
 .error-text {
   color: #c62828;
   text-align: center;

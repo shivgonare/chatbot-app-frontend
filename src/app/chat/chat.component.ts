@@ -19,23 +19,15 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   messages: any[] = [];
   wordCount: number = 0;
   isTyping: boolean = false;
-
   useCodeDisha: boolean = true;
 
   constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
 
   ngOnInit() {
     this.messages.push({
-      text: "Welcome to CodeDisha! 👋 How can I help you today?",
+      text: "Welcome to CodeDisha! How can I help you today?",
       type: 'bot',
-      options: [
-        "Explore Courses",
-        "Trainer Details",
-        "Batch Timings",
-        "Mode (Online/Offline)",
-        "Placement Support",
-        "Contact Us"
-      ],
+      options: ["Explore Courses", "Trainer Details", "Batch Timings", "Mode", "Placement Support", "Contact Us"],
       optionsUsed: false
     });
   }
@@ -44,10 +36,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     this.scrollToBottom();
   }
 
-  /**
-   * Converts \n line breaks to <br> tags so the browser renders them correctly.
-   * Also bolds the first line (used as a title in most responses).
-   * DomSanitizer marks the result as safe HTML.
+  /*
+   * Format contract (matches CourseData.java):
+   *   Line 1    → title
+   *   "• ..."   → bullet (all info rows use this — no KV table style)
+   *   "# ..."   → section label
+   *   blank     → spacer
+   *   other     → plain text
    */
   formatMessage(text: string): SafeHtml {
     if (!text) return '';
@@ -58,25 +53,38 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     lines.forEach((line, index) => {
       const trimmed = line.trim();
 
-      if (trimmed === '') {
-        // Blank line → paragraph spacing
-        html += '<br>';
-      } else if (index === 0 && trimmed !== '') {
-        // First line → bold title
-        html += `<strong>${this.escapeHtml(trimmed)}</strong>`;
-      } else {
-        html += this.escapeHtml(line);
+      if (index === 0 && trimmed !== '') {
+        // title
+        html += `<div class="msg-title">${this.esc(trimmed)}</div>`;
+        return;
       }
 
-      if (index < lines.length - 1) {
-        html += '<br>';
+      if (trimmed === '') {
+        // spacer
+        html += `<div class="msg-spacer"></div>`;
+        return;
       }
+
+      if (trimmed.startsWith('# ')) {
+        // section label
+        html += `<div class="msg-section">${this.esc(trimmed.slice(2).trim())}</div>`;
+        return;
+      }
+
+      if (trimmed.startsWith('• ')) {
+        // bullet
+        html += `<div class="msg-bullet">${this.esc(trimmed.slice(2).trim())}</div>`;
+        return;
+      }
+
+      // plain text
+      html += `<div class="msg-plain">${this.esc(trimmed)}</div>`;
     });
 
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-  private escapeHtml(text: string): string {
+  private esc(text: string): string {
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -86,16 +94,12 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   private scrollToBottom() {
     try {
-      const el = this.chatBox.nativeElement;
-      el.scrollTop = el.scrollHeight;
+      this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
     } catch (e) {}
   }
 
   onInputChange() {
-    if (!this.userInput) {
-      this.wordCount = 0;
-      return;
-    }
+    if (!this.userInput) { this.wordCount = 0; return; }
     this.wordCount = this.userInput.trim().split(/\s+/).length;
   }
 

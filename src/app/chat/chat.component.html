@@ -9,30 +9,30 @@
   <div class="chat-box" #chatBox>
     <div *ngFor="let msg of messages" class="message-group">
 
-      <!-- USER MESSAGE -->
+      <!-- user bubble -->
       <div *ngIf="msg.type === 'user'" class="user-msg-wrapper">
         <div class="user-msg">{{ msg.text }}</div>
       </div>
 
-      <!-- BOT MESSAGE — [innerHTML] renders the <br> tags from formatMessage() -->
+      <!-- bot bubble -->
       <div *ngIf="msg.type === 'bot'" class="bot-msg-wrapper">
         <div class="bot-avatar">CD</div>
         <div class="bot-msg" [innerHTML]="formatMessage(msg.text)"></div>
       </div>
 
-      <!-- OPTIONS BUTTONS -->
+      <!-- option buttons (hidden after one tap) -->
       <div *ngIf="msg.options && msg.options.length && !msg.optionsUsed" class="options-box">
         <button
           *ngFor="let opt of msg.options"
           class="option-btn"
           (click)="selectOption(msg, opt)">
-          <span class="opt-arrow">›</span> {{ opt }}
+          {{ opt }}
         </button>
       </div>
 
     </div>
 
-    <!-- Typing indicator shown while waiting for bot response -->
+    <!-- typing indicator -->
     <div *ngIf="isTyping" class="bot-msg-wrapper">
       <div class="bot-avatar">CD</div>
       <div class="bot-msg typing-indicator">
