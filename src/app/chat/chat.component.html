@@ -1,0 +1,59 @@
+<div class="chat-container">
+
+  <div class="chat-header">
+    <div class="header-icon">🎓</div>
+    <h2>CodeDisha Chatbot</h2>
+    <p class="header-sub">Your Training Assistant</p>
+  </div>
+
+  <div class="chat-box" #chatBox>
+    <div *ngFor="let msg of messages" class="message-group">
+
+      <!-- USER MESSAGE -->
+      <div *ngIf="msg.type === 'user'" class="user-msg-wrapper">
+        <div class="user-msg">{{ msg.text }}</div>
+      </div>
+
+      <!-- BOT MESSAGE — [innerHTML] renders the <br> tags from formatMessage() -->
+      <div *ngIf="msg.type === 'bot'" class="bot-msg-wrapper">
+        <div class="bot-avatar">CD</div>
+        <div class="bot-msg" [innerHTML]="formatMessage(msg.text)"></div>
+      </div>
+
+      <!-- OPTIONS BUTTONS -->
+      <div *ngIf="msg.options && msg.options.length && !msg.optionsUsed" class="options-box">
+        <button
+          *ngFor="let opt of msg.options"
+          class="option-btn"
+          (click)="selectOption(msg, opt)">
+          <span class="opt-arrow">›</span> {{ opt }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Typing indicator shown while waiting for bot response -->
+    <div *ngIf="isTyping" class="bot-msg-wrapper">
+      <div class="bot-avatar">CD</div>
+      <div class="bot-msg typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="input-box">
+    <input
+      [(ngModel)]="userInput"
+      (ngModelChange)="onInputChange()"
+      placeholder="Ask about courses, placements..."
+      (keyup.enter)="sendMessage()"
+    />
+    <button (click)="sendMessage()" [disabled]="wordCount > 100 || isTyping">
+      Send
+    </button>
+  </div>
+
+  <p *ngIf="wordCount > 100" class="error-text">Max 100 words allowed</p>
+
+</div>
