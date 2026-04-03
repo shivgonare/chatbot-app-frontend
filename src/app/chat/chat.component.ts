@@ -36,14 +36,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     this.scrollToBottom();
   }
 
-  /*
-   * Format contract (matches CourseData.java):
-   *   Line 1    → title
-   *   "• ..."   → bullet (all info rows use this — no KV table style)
-   *   "# ..."   → section label
-   *   blank     → spacer
-   *   other     → plain text
-   */
+
   formatMessage(text: string): SafeHtml {
     if (!text) return '';
 
@@ -103,41 +96,36 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     this.wordCount = this.userInput.trim().split(/\s+/).length;
   }
 
-  sendMessage() {
-    if (!this.userInput.trim() || this.isTyping) return;
+ sendMessage() {
+  if (!this.userInput.trim() || this.isTyping) return;
 
-    if (this.wordCount > 100) {
-      this.messages.push({ text: "Please ask a shorter question (max 100 words).", type: 'bot' });
-      return;
-    }
-
-    const message = this.userInput;
-    this.messages.push({ text: message, type: 'user' });
-    this.userInput = '';
-    this.wordCount = 0;
-    this.isTyping = true;
-
-    const url = this.useCodeDisha
-      ? 'http://localhost:8080/chat/codedisha'
-      : 'http://localhost:8080/chat';
-
-    this.http.post<any>(url, { message }).subscribe({
-      next: (res) => {
-        this.isTyping = false;
-        this.messages.push({
-          text: res.message,
-          type: 'bot',
-          options: res.options || [],
-          optionsUsed: false
-        });
-      },
-      error: () => {
-        this.isTyping = false;
-        this.messages.push({ text: 'Server error. Please try again.', type: 'bot' });
-      }
-    });
+  if (this.wordCount > 100) {
+    this.messages.push({ text: "Please ask a shorter question (max 100 words).", type: 'bot' });
+    return;
   }
 
+  const message = this.userInput;
+  this.messages.push({ text: message, type: 'user' });
+  this.userInput = '';
+  this.wordCount = 0;
+  this.isTyping = true;
+
+  this.http.post<any>('http://localhost:8080/api/chat', { message }).subscribe({
+    next: (res) => {
+      this.isTyping = false;
+      this.messages.push({
+        text: res.message,
+        type: 'bot',
+        options: res.options || [],
+        optionsUsed: false
+      });
+    },
+    error: () => {
+      this.isTyping = false;
+      this.messages.push({ text: 'Server error. Please try again.', type: 'bot' });
+    }
+  });
+}
   selectOption(msg: any, option: string) {
     msg.optionsUsed = true;
     this.userInput = option;

@@ -1,0 +1,39 @@
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="login-header">
+      <div class="logo-icon">CD</div>
+      <h2>CodeDisha Admin</h2>
+      <p>Sign in to manage your chatbot</p>
+    </div>
+
+    <div class="login-body">
+      <div class="form-group">
+        <label>Username</label>
+        <input
+          type="text"
+          [(ngModel)]="username"
+          placeholder="Enter username"
+          (keyup.enter)="login()"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          placeholder="Enter password"
+          (keyup.enter)="login()"
+        />
+      </div>
+
+      <p *ngIf="error" class="error-msg">{{ error }}</p>
+
+      <button class="login-btn" (click)="login()" [disabled]="loading">
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </div>
+
+  </div>
+</div>

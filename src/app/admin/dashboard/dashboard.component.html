@@ -1,0 +1,603 @@
+<div class="admin-shell">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-icon">CD</div>
+                <span class="brand-name">CodeDisha</span>
+            </div>
+            <button class="collapse-btn" (click)="sidebarCollapsed = !sidebarCollapsed">
+                {{ sidebarCollapsed ? '→' : '←' }}
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item" [class.active]="activeTab === 'dashboard'" (click)="setTab('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab === 'courses'" (click)="setTab('courses')">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">Courses</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab === 'faqs'" (click)="setTab('faqs')">
+                <span class="nav-icon">❓</span>
+                <span class="nav-label">FAQs</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab === 'intents'" (click)="setTab('intents')">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-label">Intents</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab === 'trainers'" (click)="setTab('trainers')">
+                <span class="nav-icon">👨‍🏫</span>
+                <span class="nav-label">Trainers</span>
+            </button>
+            <button class="nav-item" [class.active]="activeTab === 'config'" (click)="setTab('config')">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Bot Config</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" (click)="logout()">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-label">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+        <!-- Top bar -->
+        <div class="topbar">
+            <h1 class="page-title">{{ pageTitle }}</h1>
+            <div class="topbar-right">
+                <span class="admin-badge">Admin</span>
+            </div>
+        </div>
+
+        <!-- ── DASHBOARD TAB ── -->
+        <div *ngIf="activeTab === 'dashboard'" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <span class="stat-num">{{ stats.courses }}</span>
+                        <span class="stat-lbl">Total Courses</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❓</div>
+                    <div class="stat-info">
+                        <span class="stat-num">{{ stats.faqs }}</span>
+                        <span class="stat-lbl">FAQ Entries</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <span class="stat-num">{{ stats.intents }}</span>
+                        <span class="stat-lbl">Intents</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍🏫</div>
+                    <div class="stat-info">
+                        <span class="stat-num">{{ stats.trainers }}</span>
+                        <span class="stat-lbl">Trainers</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3 class="section-title">Quick Actions</h3>
+                <div class="action-grid">
+                    <button class="action-card" (click)="setTab('courses'); openModal('course')">
+                        <span>➕</span> Add Course
+                    </button>
+                    <button class="action-card" (click)="setTab('faqs'); openModal('faq')">
+                        <span>➕</span> Add FAQ
+                    </button>
+                    <button class="action-card" (click)="setTab('trainers'); openModal('trainer')">
+                        <span>➕</span> Add Trainer
+                    </button>
+                    <button class="action-card" (click)="setTab('intents'); openModal('intent')">
+                        <span>➕</span> Add Intent
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── COURSES TAB ── -->
+        <div *ngIf="activeTab === 'courses'" class="tab-content">
+            <div class="toolbar">
+                <div class="search-row">
+                    <input class="search-input" [(ngModel)]="courseFilter.name" placeholder="Search by name…"
+                        (keyup.enter)="loadCourses()" />
+                    <select class="filter-select" [(ngModel)]="courseFilter.mode" (change)="loadCourses()">
+                        <option value="">All Modes</option>
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                    <select class="filter-select" [(ngModel)]="courseFilter.isActive" (change)="loadCourses()">
+                        <option value="">All Status</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                    <button class="btn-primary" (click)="loadCourses()">Search</button>
+                </div>
+                <button class="btn-primary" (click)="openModal('course')">+ Add Course</button>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Mode</th>
+                            <th>Duration</th>
+                            <!-- <th>Price</th> -->
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of courses">
+                            <td>{{ c.id }}</td>
+                            <td>{{ c.name }}</td>
+                            <td><span class="badge badge-mode">{{ c.mode }}</span></td>
+                            <td>{{ c.duration }}</td>
+                            <!-- <td>₹{{ c.price }}</td> -->
+<td>
+  <span class="badge" [class.badge-active]="c.status" [class.badge-inactive]="!c.status">
+    {{ c.status ? 'Active' : 'Inactive' }}
+  </span>
+</td>
+                            <td class="actions">
+                                <button class="btn-icon" title="Edit" (click)="editCourse(c)">✏️</button>
+                                <button class="btn-icon btn-toggle" title="Toggle Status"
+                                    (click)="toggleCourseStatus(c)">🔄</button>
+                                <button class="btn-icon btn-del" title="Delete"
+                                    (click)="deleteCourse(c.id)">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="courses.length === 0">
+                            <td colspan="7" class="empty-row">No courses found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="page-btn" [disabled]="coursePage === 0"
+                    (click)="coursePage = coursePage - 1; loadCourses()">‹</button>
+                <span class="page-info">Page {{ coursePage + 1 }} of {{ courseTotalPages }}</span>
+                <button class="page-btn" [disabled]="coursePage >= courseTotalPages - 1"
+                    (click)="coursePage = coursePage + 1; loadCourses()">›</button>
+            </div>
+        </div>
+
+        <!-- ── FAQS TAB ── -->
+        <div *ngIf="activeTab === 'faqs'" class="tab-content">
+            <div class="toolbar">
+                <div class="search-row">
+                    <input class="search-input" [(ngModel)]="faqFilter.question" placeholder="Search by question…"
+                        (keyup.enter)="loadFaqs()" />
+                    <select class="filter-select" [(ngModel)]="faqFilter.isActive" (change)="loadFaqs()">
+                        <option value="">All Status</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                    <button class="btn-primary" (click)="loadFaqs()">Search</button>
+                </div>
+                <button class="btn-primary" (click)="openModal('faq')">+ Add FAQ</button>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Answer</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let f of faqs">
+                            <td>{{ f.id }}</td>
+                            <td class="td-truncate">{{ f.question }}</td>
+                            <td class="td-truncate">{{ f.answer }}</td>
+<td>
+  <span class="badge" [class.badge-active]="f.status" [class.badge-inactive]="!f.status">
+    {{ f.status ? 'Active' : 'Inactive' }}
+  </span>
+</td>
+                            <td class="actions">
+                                <button class="btn-icon" (click)="editFaq(f)">✏️</button>
+                                <button class="btn-icon btn-toggle" (click)="toggleFaqStatus(f)">🔄</button>
+                                <button class="btn-icon btn-del" (click)="deleteFaq(f.id)">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="faqs.length === 0">
+                            <td colspan="5" class="empty-row">No FAQs found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="page-btn" [disabled]="faqPage === 0"
+                    (click)="faqPage = faqPage - 1; loadFaqs()">‹</button>
+                <span class="page-info">Page {{ faqPage + 1 }} of {{ faqTotalPages }}</span>
+                <button class="page-btn" [disabled]="faqPage >= faqTotalPages - 1"
+                    (click)="faqPage = faqPage + 1; loadFaqs()">›</button>
+            </div>
+        </div>
+
+        <!-- ── INTENTS TAB ── -->
+        <div *ngIf="activeTab === 'intents'" class="tab-content">
+            <div class="toolbar">
+                <span class="toolbar-label">All Intents ({{ intents.length }})</span>
+                <button class="btn-primary" (click)="openModal('intent')">+ Add Intent</button>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Intent Name</th>
+                            <th>Keywords</th>
+                            <th>Action Type</th>
+                            <th>Response Template</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let i of intents">
+                            <td>{{ i.id }}</td>
+                            <td>{{ i.intentName }}</td>
+                            <td class="td-truncate">{{ i.keywords }}</td>
+                            <td><span class="badge badge-mode">{{ i.actionType }}</span></td>
+                            <td class="td-truncate">{{ i.responseTemplate }}</td>
+<td>
+  <span class="badge" [class.badge-active]="i.status" [class.badge-inactive]="!i.status">
+    {{ i.status ? 'Active' : 'Inactive' }}
+  </span>
+</td>
+<td class="actions">
+  <button class="btn-icon" (click)="editIntent(i)">✏️</button>
+  <button class="btn-icon btn-toggle" (click)="toggleIntentStatus(i)">🔄</button>  
+  <button class="btn-icon btn-del" (click)="deleteIntent(i.id)">🗑️</button>
+</td>
+                        </tr>
+                        <tr *ngIf="intents.length === 0">
+                            <td colspan="5" class="empty-row">No intents found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="page-btn" [disabled]="intentPage === 0"
+                    (click)="intentPage = intentPage - 1; loadIntents()">‹</button>
+                <span class="page-info">Page {{ intentPage + 1 }} of {{ intentTotalPages }}</span>
+                <button class="page-btn" [disabled]="intentPage >= intentTotalPages - 1"
+                    (click)="intentPage = intentPage + 1; loadIntents()">›</button>
+            </div>
+        </div>
+
+        <!-- ── TRAINERS TAB ── -->
+        <div *ngIf="activeTab === 'trainers'" class="tab-content">
+            <div class="toolbar">
+                <div class="search-row">
+                    <input class="search-input" [(ngModel)]="trainerFilter.name" placeholder="Name…"
+                        (keyup.enter)="loadTrainers()" />
+                    <input class="search-input" [(ngModel)]="trainerFilter.specialization" placeholder="Specialization…"
+                        (keyup.enter)="loadTrainers()" />
+                    <button class="btn-primary" (click)="loadTrainers()">Search</button>
+                </div>
+                <button class="btn-primary" (click)="openModal('trainer')">+ Add Trainer</button>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Specialization</th>
+                            <th>Experience</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let t of trainers">
+                            <td>{{ t.id }}</td>
+                            <td>{{ t.name }}</td>
+                            <td>{{ t.email }}</td>
+                            <td><span class="badge badge-mode">{{ t.specialization }}</span></td>
+                            <td>{{ t.experience }} yrs</td>
+                            <td>
+  <span class="badge" [class.badge-active]="t.status" [class.badge-inactive]="!t.status">
+    {{ t.status ? 'Active' : 'Inactive' }}
+  </span>
+</td>
+                            <td class="actions">
+                                <button class="btn-icon" (click)="editTrainer(t)">✏️</button>
+                                <button class="btn-icon btn-toggle" (click)="toggleTrainerStatus(t)">🔄</button>
+                                <button class="btn-icon btn-del" (click)="deleteTrainer(t.id)">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="trainers.length === 0">
+                            <td colspan="6" class="empty-row">No trainers found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="page-btn" [disabled]="trainerPage === 0"
+                    (click)="trainerPage = trainerPage - 1; loadTrainers()">‹</button>
+                <span class="page-info">Page {{ trainerPage + 1 }} of {{ trainerTotalPages }}</span>
+                <button class="page-btn" [disabled]="trainerPage >= trainerTotalPages - 1"
+                    (click)="trainerPage = trainerPage + 1; loadTrainers()">›</button>
+            </div>
+        </div>
+
+        <!-- ── BOT CONFIG TAB ── -->
+        <div *ngIf="activeTab === 'config'" class="tab-content">
+            <div class="toolbar">
+                <div class="search-row">
+                    <input class="search-input" [(ngModel)]="configFilter.key" placeholder="Filter by key…"
+                        (keyup.enter)="loadConfigs()" />
+                    <button class="btn-primary" (click)="loadConfigs()">Search</button>
+                </div>
+                <button class="btn-primary" (click)="openModal('config')">+ Add Config</button>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let cfg of configs">
+                            <td>{{ cfg.configKey  }}</td>
+                            <td class="td-truncate">{{ cfg.configValue  }}</td>
+                            <td class="actions">
+                                <button class="btn-icon" (click)="editConfig(cfg)">✏️</button>  
+                                <button class="btn-icon btn-del" (click)="deleteConfig(cfg.configKey)">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="configs.length === 0">
+                            <td colspan="3" class="empty-row">No config entries found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="page-btn" [disabled]="configPage === 0"
+                    (click)="configPage = configPage - 1; loadConfigs()">‹</button>
+                <span class="page-info">Page {{ configPage + 1 }} of {{ configTotalPages }}</span>
+                <button class="page-btn" [disabled]="configPage >= configTotalPages - 1"
+                    (click)="configPage = configPage + 1; loadConfigs()">›</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Course Modal -->
+<div class="modal-overlay" *ngIf="modal === 'course'" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ editingId ? 'Edit Course' : 'Add Course' }}</h3>
+            <button class="modal-close" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label>Course Name *</label>
+                <input class="form-input" [(ngModel)]="courseForm.name" placeholder="e.g. Java Full Stack" />
+            </div>
+            <div class="form-row">
+                <label>Mode *</label>
+                <select class="form-input" [(ngModel)]="courseForm.mode">
+                    <option value="">Select mode</option>
+                    <option value="online">Online</option>
+                    <option value="offline">Offline</option>
+                    <option value="hybrid">Hybrid</option>
+                </select>
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>Duration</label>
+                    <input class="form-input" [(ngModel)]="courseForm.duration" placeholder="e.g. 3 months" />
+                </div>
+                <!-- <div>
+                    <label>Price (₹)</label>
+                    <input class="form-input" type="number" [(ngModel)]="courseForm.price" placeholder="e.g. 15000" />
+                </div> -->
+            </div>
+            <div class="form-row">
+                <label>Description</label>
+                <textarea class="form-input" rows="3" [(ngModel)]="courseForm.description"
+                    placeholder="Course description…"></textarea>
+            </div>
+            <div class="form-row toggle-row">
+                <label>Active</label>
+                <input type="checkbox" [(ngModel)]="courseForm.isActive" />
+            </div>
+            <p *ngIf="modalError" class="modal-error">{{ modalError }}</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveCourse()" [disabled]="modalLoading">
+                {{ modalLoading ? 'Saving…' : (editingId ? 'Update' : 'Create') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Modal -->
+<div class="modal-overlay" *ngIf="modal === 'faq'" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ editingId ? 'Edit FAQ' : 'Add FAQ' }}</h3>
+            <button class="modal-close" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label>Question *</label>
+                <input class="form-input" [(ngModel)]="faqForm.question" placeholder="Enter question" />
+            </div>
+            <div class="form-row">
+                <label>Answer *</label>
+                <textarea class="form-input" rows="4" [(ngModel)]="faqForm.answer"
+                    placeholder="Enter answer"></textarea>
+            </div>
+            <div class="form-row toggle-row">
+                <label>Active</label>
+                <input type="checkbox" [(ngModel)]="faqForm.isActive" />
+            </div>
+            <p *ngIf="modalError" class="modal-error">{{ modalError }}</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveFaq()" [disabled]="modalLoading">
+                {{ modalLoading ? 'Saving…' : (editingId ? 'Update' : 'Create') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Intent Modal -->
+<div class="modal-overlay" *ngIf="modal === 'intent'" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ editingId ? 'Edit Intent' : 'Add Intent' }}</h3>
+            <button class="modal-close" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label>Intent Name *</label>
+                <input class="form-input" [(ngModel)]="intentForm.intentName" placeholder="e.g. COURSES_LIST" />
+            </div>
+            <div class="form-row">
+                <label>Keywords (comma separated) *</label>
+                <input class="form-input" [(ngModel)]="intentForm.keywords" 
+                       placeholder="courses,explore,all courses" />
+            </div>
+            <div class="form-row">
+                <label>Action Type *</label>
+                <select class="form-input" [(ngModel)]="intentForm.actionType">
+                    <option value="">Select type</option>
+                    <option value="STATIC">STATIC</option>
+                    <option value="COURSE_LOOKUP">COURSE_LOOKUP</option>
+                    <option value="TRAINER_LOOKUP">TRAINER_LOOKUP</option>
+                    <option value="FAQ_LOOKUP">FAQ_LOOKUP</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Response Template</label>
+                <textarea class="form-input" rows="3" [(ngModel)]="intentForm.responseTemplate"
+                    placeholder="e.g. We offer {course} — {duration} ({mode})"></textarea>
+            </div>
+            <p *ngIf="modalError" class="modal-error">{{ modalError }}</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveIntent()" [disabled]="modalLoading">
+                {{ modalLoading ? 'Saving…' : (editingId ? 'Update' : 'Create') }}
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Trainer Modal -->
+<div class="modal-overlay" *ngIf="modal === 'trainer'" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ editingId ? 'Edit Trainer' : 'Add Trainer' }}</h3>
+            <button class="modal-close" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row two-col">
+                <div>
+                    <label>Name *</label>
+                    <input class="form-input" [(ngModel)]="trainerForm.name" placeholder="Full name" />
+                </div>
+                <div>
+                    <label>Email *</label>
+                    <input class="form-input" [(ngModel)]="trainerForm.email" placeholder="email@example.com" />
+                </div>
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>Specialization *</label>
+                    <input class="form-input" [(ngModel)]="trainerForm.specialization" placeholder="e.g. Java, React" />
+                </div>
+                <div>
+                    <label>Experience (yrs)</label>
+                    <input class="form-input" type="number" [(ngModel)]="trainerForm.experience" placeholder="e.g. 5" />
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Bio</label>
+                <textarea class="form-input" rows="3" [(ngModel)]="trainerForm.bio" placeholder="Short bio…"></textarea>
+            </div>
+            <p *ngIf="modalError" class="modal-error">{{ modalError }}</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveTrainer()" [disabled]="modalLoading">
+                {{ modalLoading ? 'Saving…' : (editingId ? 'Update' : 'Create') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Config Modal -->
+<div class="modal-overlay" *ngIf="modal === 'config'" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ editingKey ? 'Edit Config' : 'Add Config' }}</h3>
+            <button class="modal-close" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label>Key *</label>
+                <input class="form-input" [(ngModel)]="configForm.key" placeholder="e.g. welcome_message"
+                    [disabled]="!!editingKey" />
+            </div>
+            <div class="form-row">
+                <label>Value *</label>
+                <textarea class="form-input" rows="3" [(ngModel)]="configForm.value"
+                    placeholder="Config value…"></textarea>
+            </div>
+            <p *ngIf="modalError" class="modal-error">{{ modalError }}</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveConfig()" [disabled]="modalLoading">
+                {{ modalLoading ? 'Saving…' : (editingKey ? 'Update' : 'Create') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" *ngIf="toast" [class.toast-error]="toastType === 'error'">
+    {{ toast }}
+</div>
